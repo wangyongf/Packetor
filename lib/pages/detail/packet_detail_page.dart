@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:packet_capture_flutter/pages/detail/packet_detail_overview.dart';
+import 'package:packet_capture_flutter/pages/detail/packet_detail_request.dart';
+import 'package:packet_capture_flutter/pages/detail/packet_detail_response.dart';
 
 class PacketDetailPage extends StatefulWidget {
   @override
@@ -32,12 +35,10 @@ class _PacketDetailPageState extends State<PacketDetailPage>
         ),
         actions: <Widget>[
           SizedBox(
-              width: 40,
-              height: 40,
+              width: 60,
               child: InkWell(onTap: () {}, child: Icon(Icons.share))),
           SizedBox(
-              width: 40,
-              height: 40,
+              width: 60,
               child: InkWell(onTap: () {}, child: Icon(Icons.favorite_border)))
         ],
         bottom: _buildBottom(),
@@ -62,15 +63,9 @@ class _PacketDetailPageState extends State<PacketDetailPage>
 
   _buildBody() {
     return TabBarView(controller: _tabController, children: <Widget>[
-      Center(
-        child: Text('总览'),
-      ),
-      Center(
-        child: Text('请求'),
-      ),
-      Center(
-        child: Text('响应'),
-      ),
+      PacketDetailOverview(),
+      PacketDetailRequest(),
+      PacketDetailResponse(),
     ]);
   }
 

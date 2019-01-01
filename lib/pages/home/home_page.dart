@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:packet_capture_flutter/pages/home/packet_list_page.dart';
 
 /// 首页：请求列表
 class HomePage extends StatefulWidget {
@@ -22,21 +24,20 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: <Widget>[
           SizedBox(
-              width: 40,
-              height: 40,
+              width: 60,
               child: InkWell(
-                  onTap: () {}, child: Icon(Icons.youtube_searched_for))),
+                  onTap: () {
+                    Fluttertoast.showToast(msg: '「高级搜索功能开发中」');
+                  },
+                  child: Icon(Icons.youtube_searched_for))),
           SizedBox(
-              width: 40,
-              height: 40,
+              width: 60,
               child: InkWell(onTap: () {}, child: Icon(Icons.layers_clear)))
         ],
       ),
-      body: Center(
-        child: Text(
-          '点击右下角按钮开始抓包',
-          style: TextStyle(color: Colors.grey, fontSize: 18),
-        ),
+      body: Padding(
+        padding: EdgeInsets.only(top: 5),
+        child: PacketListPage(),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},

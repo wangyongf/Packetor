@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:packet_capture_flutter/pages/packet_detail_page.dart';
+import 'package:packet_capture_flutter/pages/detail/packet_detail_page.dart';
 
 void main() => runApp(MyApp());
 
