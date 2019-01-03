@@ -33,7 +33,9 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
             _divider(),
             _buildStatusItem('host', 'https://8.wacai.com'),
             _divider(),
-            _buildStatusItem('Content-Type', 'application/json'),
+            _buildStatusItem('Content-Type ↑', 'application/json'),
+            _divider(),
+            _buildStatusItem('Content-Type ↓', 'application/json'),
             _divider(),
             _buildStatusItem('Server IP', '127.0.0.1:8080'),
             _buildTitle('时间'),
@@ -83,7 +85,7 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
                 key,
                 style: TextStyle(color: Colors.black, fontSize: 15),
               ),
-              flex: 4,
+              flex: 5,
             ),
             Expanded(
               child: Text(

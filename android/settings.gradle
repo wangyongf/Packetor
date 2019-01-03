@@ -13,3 +13,6 @@ plugins.each { name, path ->
     include ":$name"
     project(":$name").projectDir = pluginDirectory
 }
+
+include ':pcf-core'
+project(':pcf-core').projectDir = new File(settingsDir, '../../../../Android/NetWorkPacketCapture/vpnadaptercore')

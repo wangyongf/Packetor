@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:packet_capture_flutter/common/routes.dart';
 
 class PacketListPage extends StatefulWidget {
   @override
@@ -24,7 +25,9 @@ class _PacketListPageState extends State<PacketListPage> {
 
   _buildItem(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        _gotoPacketDetailPage();
+      },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 8),
         child: Row(
@@ -75,5 +78,9 @@ class _PacketListPageState extends State<PacketListPage> {
         ),
       ),
     );
+  }
+
+  _gotoPacketDetailPage() {
+    Navigator.pushNamed(context, Routes.PACKET_DETAIL_PAGE);
   }
 }
