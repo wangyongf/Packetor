@@ -20,3 +20,52 @@ samples, guidance on mobile development, and a full API reference.
 - [巨人1]()
 - [巨人2]()
 - [巨人3]()
+
+## 数据结构
+
+```json
+[
+  {
+    "type": null,
+    "ipAndPort": null,
+    "remoteIP": 0,
+    "localIP": 0,
+    "remotePort": 0,
+    "remoteHost": null,
+    "localPort": 0,
+    "bytesSent": 0,
+    "packetSent": 0,
+    "receivedByteNum": 0,
+    "receivedPacketNum": 0,
+    "lastRefreshTime": 0,
+    "isHttpsSession": false,
+    "requestUrl": null,
+    "path": null,
+    "method": null,
+    "connectionStartTime": 1546621089025,
+    "vpnStartTime": 0,
+    "isHttp": false
+  },
+  {
+    "type": null,
+    "ipAndPort": null,
+    "remoteIP": 0,
+    "localIP": 0,
+    "remotePort": 0,
+    "remoteHost": null,
+    "localPort": 0,
+    "bytesSent": 0,
+    "packetSent": 0,
+    "receivedByteNum": 0,
+    "receivedPacketNum": 0,
+    "lastRefreshTime": 0,
+    "isHttpsSession": false,
+    "requestUrl": null,
+    "path": null,
+    "method": null,
+    "connectionStartTime": 1546621089025,
+    "vpnStartTime": 0,
+    "isHttp": false
+  }
+]
+```

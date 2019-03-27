@@ -1,5 +1,6 @@
 package com.yongf.flutter.packetcaptureflutter
 
+import android.Manifest
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -8,6 +9,7 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.app.ActivityCompat
 import android.widget.Toast
 import com.minhui.vpn.ProxyConfig
 import com.minhui.vpn.VPNConstants
@@ -45,6 +47,7 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GeneratedPluginRegistrant.registerWith(this)
+        CrashHandler.getInstance().init(this)
 
         handler = Handler()
         ProxyConfig.Instance.registerVpnStatusListener(listener)
@@ -59,14 +62,20 @@ class MainActivity : FlutterActivity() {
                     handleGetBatteryLevel(result)
 //                    invokeDart()
                 }
-                call.method == "startVPN" -> startVPN()
-                call.method == "stopVPN" -> stopVPN()
+                call.method == "startVPN" -> startVPN(result)
+                call.method == "stopVPN" -> stopVPN(result)
                 call.method == "getAllSessions" -> getAllSessions(result)
                 else -> result.notImplemented()
             }
         }
 
         getData()
+        checkP()
+    }
+
+    private fun checkP() {
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
     }
 
     private fun getAllSessions(result: MethodChannel.Result) {
@@ -126,14 +135,16 @@ class MainActivity : FlutterActivity() {
         stopTimer()
     }
 
-    private fun startVPN() {
+    private fun startVPN(result: MethodChannel.Result) {
         PcfHelper.startVPN(this)
         startTimer()
+        result.success(true)
     }
 
-    private fun stopVPN() {
+    private fun stopVPN(result: MethodChannel.Result) {
         PcfHelper.stopVPN(this)
         stopTimer()
+        result.success(true)
     }
 
     private fun handleGetBatteryLevel(result: MethodChannel.Result) {

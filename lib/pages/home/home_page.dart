@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:packet_capture_flutter/pages/home/packet_list_page.dart';
-import 'package:permission/permission.dart';
 
 /// 首页：请求列表
 class HomePage extends StatefulWidget {
@@ -47,7 +46,6 @@ class _HomePageState extends State<HomePage> {
 
     _isPacketMode = false;
     _platform.setMethodCallHandler(_handleMethod);
-    _checkPermissions();
   }
 
   @override
@@ -79,7 +77,7 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
 //          _getBatteryLevel();
-          _changeVpnStatus();
+          await _changeVpnStatus();
         },
         tooltip: '抓包',
         child: _isPacketMode ? Icon(Icons.link) : Icon(Icons.link_off),
@@ -88,18 +86,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _checkPermissions() async {
-    await Permission.requestPermissions([PermissionName.Storage]);
-  }
-
-  _changeVpnStatus() async {
+  Future<void> _changeVpnStatus() async {
     bool expected = !_isPacketMode;
-    setState(() {
-      this._isPacketMode = expected;
-    });
-
-    /// TODO: Dart2 中 async await 的使用方法？
-    /// TODO: App 中的 UncaughtExceptionHandler，用于调试，支付 SDK 中有一个现成的？
     try {
       if (expected) {
         await _platform.invokeMethod('startVPN');
@@ -110,5 +98,10 @@ class _HomePageState extends State<HomePage> {
       debugPrint("PlatformException: ${e.message}");
 //      expected = !_isPacketMode;
     }
+    setState(() {
+      this._isPacketMode = expected;
+    });
+    String result = await _platform.invokeMethod('getAllSessions');
+    debugPrint('$result');
   }
 }

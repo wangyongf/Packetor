@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:packet_capture_flutter/pages/detail/packet_detail_overview.dart';
 import 'package:packet_capture_flutter/pages/detail/packet_detail_request.dart';
 import 'package:packet_capture_flutter/pages/detail/packet_detail_response.dart';
+import 'package:share/share.dart';
 
 class PacketDetailPage extends StatefulWidget {
   @override
@@ -36,7 +37,12 @@ class _PacketDetailPageState extends State<PacketDetailPage>
         actions: <Widget>[
           SizedBox(
               width: 60,
-              child: InkWell(onTap: () {}, child: Icon(Icons.share))),
+              child: InkWell(
+                  onTap: () {
+                    Share.share(
+                        'Check out my new app - Packet Capture Flutter');
+                  },
+                  child: Icon(Icons.share))),
           SizedBox(
               width: 60,
               child: InkWell(onTap: () {}, child: Icon(Icons.favorite_border)))
