@@ -1,7 +1,14 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:packet_capture_flutter/common/routes.dart';
+import 'package:packet_capture_flutter/model/nat_session.pb.dart';
 
 class PacketListPage extends StatefulWidget {
+  final NatSessions sessions;
+
+  const PacketListPage({Key key, this.sessions}) : super(key: key);
+
   @override
   _PacketListPageState createState() => _PacketListPageState();
 }
@@ -16,14 +23,14 @@ class _PacketListPageState extends State<PacketListPage> {
 
   _buildBody() {
     return ListView.separated(
-        itemCount: 5,
+        itemCount: widget.sessions?.session?.length ?? 0,
         separatorBuilder: (BuildContext context, int index) => Divider(),
         itemBuilder: (BuildContext context, int position) {
-          return _buildItem(context);
+          return _buildItem(context, position);
         });
   }
 
-  _buildItem(BuildContext context) {
+  _buildItem(BuildContext context, int position) {
     return InkWell(
       onTap: () {
         _gotoPacketDetailPage();
@@ -32,13 +39,9 @@ class _PacketListPageState extends State<PacketListPage> {
         padding: EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           children: <Widget>[
-            Padding(
+            Container(
               padding: EdgeInsets.only(right: 8),
-              child: Icon(
-                Icons.android,
-                size: 50,
-                color: Colors.black87,
-              ),
+              child: _getIcon(position),
             ),
             Expanded(
               child: Column(
@@ -50,20 +53,21 @@ class _PacketListPageState extends State<PacketListPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
-                        '抖音短视频',
+                        widget.sessions?.session[position]?.appInfo?.appName ??
+                            'Unknown App',
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.w500),
                       ),
                       Text(
-                        '23:43:56',
+                        '时间：${formatDate(widget.sessions?.session[position]?.connectionStartTime)}',
                         style: TextStyle(color: Colors.grey, fontSize: 14),
                       )
                     ],
                   ),
                   Text(
-                    'POST http://8.wacai.com',
+                    '${widget.sessions?.session[position]?.method?.toUpperCase()} ${widget.sessions?.session[position]?.requestUrl}',
                     style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                   Text(
@@ -78,6 +82,28 @@ class _PacketListPageState extends State<PacketListPage> {
         ),
       ),
     );
+  }
+
+  Widget _getIcon(int position) {
+    if (widget.sessions == null) {
+      return Container();
+    }
+    return Image.memory(
+      widget.sessions.session[position].appInfo.icon,
+      width: 50,
+      height: 50,
+      fit: BoxFit.cover,
+      gaplessPlayback: true,
+    );
+  }
+
+  String formatDate(Int64 time) {
+    if (time == null) {
+      return '';
+    }
+    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(time.toInt());
+    var formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    return formatter.format(dateTime);
   }
 
   _gotoPacketDetailPage() {

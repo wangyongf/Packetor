@@ -1,0 +1,35 @@
+syntax = "proto3";
+package com.yongf.flutter.packetcaptureflutter.model;
+option java_outer_classname = "NatSessionModel";
+message NatSessions {
+    repeated NatSession session = 1;
+}
+
+message NatSession {
+    string type = 1;
+    string ipAndPort = 2;
+    int32 remoteIP = 3;
+    int32 remotePort = 5;
+    string remoteHost = 6;
+    int32 localIP = 4;
+    int32 localPort = 7;
+    int32 bytesSent = 8;
+    int32 packetSent = 9;
+    int64 receivedByteNum = 10;
+    int64 receivedPacketNum = 11;
+    int64 lastRefreshTime = 12;
+    bool isHttpsSession = 13;
+    string requestUrl = 14;
+    string path = 15;
+    string method = 16;
+    int64 connectionStartTime = 17;
+    int64 vpnStartTime = 18;
+    bool isHttp = 19;
+    AppInfo appInfo = 20;
+}
+
+message AppInfo {
+    string appName = 1;
+    string packageName = 2;
+    bytes icon = 3;
+}

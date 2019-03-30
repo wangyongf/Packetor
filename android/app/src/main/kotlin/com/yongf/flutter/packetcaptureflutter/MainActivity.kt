@@ -17,9 +17,12 @@ import com.minhui.vpn.VPNConstants.DEFAULT_PACKAGE_ID
 import com.minhui.vpn.nat.NatSession
 import com.minhui.vpn.utils.ThreadProxy
 import com.minhui.vpn.utils.VpnServiceHelper
+import com.yongf.flutter.packetcaptureflutter.extension.transform
+import com.yongf.flutter.packetcaptureflutter.model.NatSessionModel
 import io.flutter.app.FlutterActivity
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
+import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -27,8 +30,13 @@ import java.util.concurrent.TimeUnit
 
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "pcf.flutter.yongf.com/battery";
+    companion object {
+        const val CHANNEL = "pcf.flutter.yongf.com/battery"
+        const val PCF_CHANNEL = "flutter.yongf.com/pcf"
+    }
+
     private lateinit var channel: MethodChannel
+    private lateinit var pcf: MethodChannel
 
     private var timer: ScheduledExecutorService? = null
     private lateinit var handler: Handler
@@ -64,21 +72,29 @@ class MainActivity : FlutterActivity() {
                 }
                 call.method == "startVPN" -> startVPN(result)
                 call.method == "stopVPN" -> stopVPN(result)
-                call.method == "getAllSessions" -> getAllSessions(result)
+                call.method == "requestSessions" -> requestSessions(result)
+                else -> result.notImplemented()
+            }
+        }
+
+        pcf = MethodChannel(flutterView, PCF_CHANNEL)
+        pcf.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "transfer" -> transfer()
                 else -> result.notImplemented()
             }
         }
 
         getData()
-        checkP()
+        checkPermission()
     }
 
-    private fun checkP() {
+    private fun checkPermission() {
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
     }
 
-    private fun getAllSessions(result: MethodChannel.Result) {
+    private fun requestSessions(result: MethodChannel.Result) {
 //        result.success(allNetConnection)
         result.success("All Sessions from Android")
     }
@@ -147,9 +163,23 @@ class MainActivity : FlutterActivity() {
         result.success(true)
     }
 
+    private fun transfer() {
+        val raw = allNetConnection
+        val sessionsBuilder = NatSessionModel.NatSessions.newBuilder()
+        for (natSession in raw) {
+            val session = natSession.transform(this)
+            sessionsBuilder.addSession(session)
+        }
+        val sessions = sessionsBuilder.build()
+        val bytes = sessions.toByteArray()
+        val buffer = ByteBuffer.allocateDirect(bytes.size)
+        buffer.put(bytes)
+        flutterView.send(PCF_CHANNEL, buffer)
+        buffer.clear()
+    }
+
     private fun handleGetBatteryLevel(result: MethodChannel.Result) {
         val batteryLevel = getBatteryLevel()
-
         if (batteryLevel != -1) {
             result.success(batteryLevel)
         } else {
@@ -158,6 +188,10 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun refreshData(sessions: List<NatSession>) {
+        if (sessions == null) {
+            return
+        }
+        allNetConnection.clear()
         allNetConnection.addAll(sessions)
     }
 
@@ -173,10 +207,10 @@ class MainActivity : FlutterActivity() {
 
     private fun stopTimer() {
         if (timer == null) {
-            return;
+            return
         }
-        timer?.shutdownNow();
-        timer = null;
+        timer?.shutdownNow()
+        timer = null
     }
 
     private fun invokeDart() {
@@ -196,7 +230,7 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun getBatteryLevel(): Int {
-        val batteryLevel: Int;
+        val batteryLevel: Int
         batteryLevel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
             batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)

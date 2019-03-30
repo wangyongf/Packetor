@@ -14,7 +14,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       routes: <String, WidgetBuilder>{
-        Routes.HOME_PAGE: (BuildContext context) => HomePage(title: 'Packet Capture Flutter'),
+        Routes.HOME_PAGE: (BuildContext context) =>
+            HomePage(title: 'Packet Capture Flutter'),
         Routes.PACKET_DETAIL_PAGE: (BuildContext context) => PacketDetailPage(),
       },
       home: HomePage(title: 'Packet Capture Flutter'),
