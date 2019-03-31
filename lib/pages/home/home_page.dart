@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:packet_capture_flutter/model/nat_session.pb.dart';
 import 'package:packet_capture_flutter/pages/home/packet_list_page.dart';
 import 'package:packet_capture_flutter/session/nat_session_delegate.dart';
+import 'package:packet_capture_flutter/widget/sexy_fab.dart';
 
 /// 首页：请求列表
 class HomePage extends StatefulWidget {
@@ -58,7 +59,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    /// TODO: 类似于之前知乎版本的多功能 FloatingActionButton
     return Scaffold(
       appBar: AppBar(
         leading: InkWell(onTap: () {}, child: Icon(Icons.menu)),
@@ -80,12 +80,64 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: _buildBody(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _testProtobuf,
-        tooltip: '抓包',
-        child: _isPacketMode ? Icon(Icons.link) : Icon(Icons.link_off),
-//        child: Text(_batteryLevel),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+
+      /// FIXME: 14:53:10.471 1 info flutter.tools I/flutter (12584): Another exception was thrown: There are multiple heroes that share the same tag within a subtree.
+      floatingActionButton: SexyFab(
+        itemCount: 3,
+        itemBuilder: (BuildContext context, int index) {
+          return _buildSexyFab(index);
+        },
+      ),
+//      floatingActionButton: FloatingActionButton(
+//        onPressed: _refreshSessions,
+//        tooltip: '抓包',
+//        child: _isPacketMode ? Icon(Icons.link) : Icon(Icons.link_off),
+//      ),
+    );
+  }
+
+  Widget _buildSexyFab(int index) {
+    switch (index) {
+      case 0:
+        return _vpn();
+      case 1:
+        return _image();
+      case 2:
+        return _inbox();
+    }
+    return Container();
+  }
+
+  Widget _vpn() {
+    return Container(
+      child: FloatingActionButton(
+        heroTag: 'vpn',
+        onPressed: _changeVpnStatus,
+        tooltip: 'VPN',
+        child: !_isPacketMode ? Icon(Icons.link) : Icon(Icons.link_off),
+      ),
+    );
+  }
+
+  Widget _image() {
+    return Container(
+      child: FloatingActionButton(
+        heroTag: 'image',
+        onPressed: _refreshSessions,
+        tooltip: 'Image',
+        child: Icon(Icons.refresh),
+      ),
+    );
+  }
+
+  Widget _inbox() {
+    return Container(
+      child: FloatingActionButton(
+        heroTag: 'inbox',
+        onPressed: null,
+        tooltip: 'Inbox',
+        child: Icon(Icons.inbox),
+      ),
     );
   }
 
@@ -96,18 +148,13 @@ class _HomePageState extends State<HomePage> {
         sessions: _protobuf,
       ),
     );
-//    return Container(
-//      child: Center(
-//        child: Text(_protobuf),
-//      ),
-//    );
   }
 
-  Future<void> _testProtobuf() async {
+  Future<void> _refreshSessions() async {
     var result;
     try {
       if (!_isPacketMode) {
-        await _platform.invokeMethod('startVPN');
+        await _changeVpnStatus();
       }
       NatSessionDelegate delegate = NatSessionDelegate();
       ByteData message = await delegate.requestSessions();
@@ -136,7 +183,5 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       this._isPacketMode = expected;
     });
-    String result = await _platform.invokeMethod('getAllSessions');
-    debugPrint('$result');
   }
 }

@@ -1,10 +1,12 @@
 package com.yongf.flutter.packetcaptureflutter.extension
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Bitmap
 import com.google.protobuf.ByteString
 import com.minhui.vpn.nat.NatSession
 import com.minhui.vpn.processparse.AppInfo
+import com.yongf.flutter.packetcaptureflutter.common.Packages
 import com.yongf.flutter.packetcaptureflutter.model.NatSessionModel
 import java.io.ByteArrayOutputStream
 
@@ -19,7 +21,7 @@ fun NatSession.transform(activity: Activity): NatSessionModel.NatSession {
             .setType(natSession.getType())
             .setIpAndPort(natSession.getIpAndPort())
             .setRemoteIP(natSession.getRemoteIP())
-            .setRemoteHost(natSession.getRemoteHost())
+            .setRemoteHost(natSession.getRemoteHost() ?: "")
             .setLocalIP(natSession.getLocalIP())
             .setLocalPort(natSession.getLocalPort().toInt())
             .setBytesSent(natSession.getBytesSent())
@@ -35,11 +37,17 @@ fun NatSession.transform(activity: Activity): NatSessionModel.NatSession {
             .setVpnStartTime(natSession.getVpnStartTime())
             .setIsHttp(natSession.isHttp())
             .setAppInfo(NatSessionModel.AppInfo.newBuilder()
-                    .setAppName(getAppName(natSession.getAppInfo()))
+//                    .setAppName(getAppName(natSession.getAppInfo()))
+                    .setAppName(getFakeAppName(activity))
                     .setPackageName(getAppPackageName(activity, natSession.getAppInfo()))
                     .setIcon(getAppIcon(activity))
                     .build())
             .build()
+}
+
+private fun getFakeAppName(context: Context): String {
+    return context.packageManager.getApplicationInfo(context.packageName, 0)
+            .loadLabel(context.packageManager).toString()
 }
 
 private fun getAppName(appInfo: AppInfo?): String {
@@ -57,7 +65,17 @@ private fun getAppPackageName(activity: Activity, appInfo: AppInfo?): String {
 }
 
 private fun getAppIcon(activity: Activity): com.google.protobuf.ByteString {
-    val icon = activity.packageManager.getPackageInfo(activity.packageName, 0)
+    val nextInt = (0..6).random()
+    var packageName = when (nextInt) {
+        0 -> activity.packageName
+        1 -> Packages.WECHAT
+        2 -> Packages.QQ
+        3 -> Packages.WEREAD
+        4 -> Packages.QQ_MUSIC
+        5 -> Packages.CLOUD_MUSIC
+        else -> Packages.MOBIKE
+    }
+    val icon = activity.packageManager.getPackageInfo(packageName, 0)
             .applicationInfo.loadIcon(activity.packageManager)
     val bitmap = icon.toBitmap()
     var bos = ByteArrayOutputStream()

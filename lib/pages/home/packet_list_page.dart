@@ -57,23 +57,48 @@ class _PacketListPageState extends State<PacketListPage> {
                             'Unknown App',
                         style: TextStyle(
                             color: Colors.black,
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.w500),
                       ),
-                      Text(
-                        '时间：${formatDate(widget.sessions?.session[position]?.connectionStartTime)}',
-                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                      Expanded(
+                        child: Text(
+                          '${formatDate(widget.sessions?.session[position]?.connectionStartTime)}',
+                          style: TextStyle(color: Colors.black38, fontSize: 16),
+                          textAlign: TextAlign.end,
+                        ),
                       )
                     ],
                   ),
-                  Text(
-                    '${widget.sessions?.session[position]?.method?.toUpperCase()} ${widget.sessions?.session[position]?.requestUrl}',
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  Padding(
+                    padding: EdgeInsets.only(top: 5),
+                    child: Row(
+                      children: <Widget>[
+                        Text(
+                          widget.sessions?.session[position]?.method
+                              ?.toUpperCase(),
+                          style: TextStyle(color: Colors.black, fontSize: 15),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: Text(
+                            widget.sessions?.session[position]?.requestUrl,
+                            style: TextStyle(color: Colors.black, fontSize: 15),
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                  Text(
-                    '200 OK',
-                    style:
-                        TextStyle(color: Colors.lightBlueAccent, fontSize: 14),
+                  Padding(
+                    padding: EdgeInsets.only(top: 5),
+                    child: Text(
+                      '200 OK',
+                      style: TextStyle(color: Colors.blueAccent, fontSize: 15),
+                    ),
                   )
                 ],
               ),
@@ -102,11 +127,11 @@ class _PacketListPageState extends State<PacketListPage> {
       return '';
     }
     DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(time.toInt());
-    var formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    var formatter = DateFormat('HH:mm:ss');
     return formatter.format(dateTime);
   }
 
   _gotoPacketDetailPage() {
-    Navigator.pushNamed(context, Routes.PACKET_DETAIL_PAGE);
+    Navigator.of(context).pushNamed(Routes.PACKET_DETAIL_PAGE);
   }
 }
