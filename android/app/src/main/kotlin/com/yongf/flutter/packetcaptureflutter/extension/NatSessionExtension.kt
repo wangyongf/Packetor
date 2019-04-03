@@ -37,44 +37,31 @@ fun NatSession.transform(activity: Activity): NatSessionModel.NatSession {
             .setVpnStartTime(natSession.getVpnStartTime())
             .setIsHttp(natSession.isHttp())
             .setAppInfo(NatSessionModel.AppInfo.newBuilder()
-//                    .setAppName(getAppName(natSession.getAppInfo()))
-                    .setAppName(getFakeAppName(activity))
+                    .setAppName(getAppName(activity, natSession.getAppInfo()))
                     .setPackageName(getAppPackageName(activity, natSession.getAppInfo()))
-                    .setIcon(getAppIcon(activity))
+                    .setIcon(getAppIcon(activity, natSession.getAppInfo()))
                     .build())
             .build()
 }
 
-private fun getFakeAppName(context: Context): String {
-    return context.packageManager.getApplicationInfo(context.packageName, 0)
-            .loadLabel(context.packageManager).toString()
-}
-
-private fun getAppName(appInfo: AppInfo?): String {
+private fun getAppName(context: Context, appInfo: AppInfo?): String {
     if (appInfo == null) {
         return "Unknown App"
     }
-    return "抖音短视频"
+    return context.packageManager.getApplicationInfo(appInfo.pkgs.getAt(0), 0)
+            .loadLabel(context.packageManager).toString()
 }
 
 private fun getAppPackageName(activity: Activity, appInfo: AppInfo?): String {
     if (appInfo == null) {
-        return "Unknown Package"
+        return activity.packageName
     }
-    return activity.packageName
+    return appInfo.pkgs.getAt(0)
 }
 
-private fun getAppIcon(activity: Activity): com.google.protobuf.ByteString {
-    val nextInt = (0..6).random()
-    var packageName = when (nextInt) {
-        0 -> activity.packageName
-        1 -> Packages.WECHAT
-        2 -> Packages.QQ
-        3 -> Packages.WEREAD
-        4 -> Packages.QQ_MUSIC
-        5 -> Packages.CLOUD_MUSIC
-        else -> Packages.MOBIKE
-    }
+private fun getAppIcon(activity: Activity, appInfo: AppInfo?): com.google.protobuf.ByteString {
+//    var packageName = randomPkgName(activity)
+    var packageName = getAppPackageName(activity, appInfo)
     val icon = activity.packageManager.getPackageInfo(packageName, 0)
             .applicationInfo.loadIcon(activity.packageManager)
     val bitmap = icon.toBitmap()
@@ -84,4 +71,17 @@ private fun getAppIcon(activity: Activity): com.google.protobuf.ByteString {
     bos.close()
 
     return ByteString.copyFrom(bytes)
+}
+
+private fun randomPkgName(activity: Activity): String? {
+    val nextInt = (0..6).random()
+    return when (nextInt) {
+        0 -> activity.packageName
+        1 -> Packages.WECHAT
+        2 -> Packages.QQ
+        3 -> Packages.WEREAD
+        4 -> Packages.QQ_MUSIC
+        5 -> Packages.CLOUD_MUSIC
+        else -> Packages.MOBIKE
+    }
 }

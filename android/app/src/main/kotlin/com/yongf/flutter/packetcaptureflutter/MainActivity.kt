@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.ActivityCompat
+import android.util.Log
 import android.widget.Toast
 import com.minhui.vpn.ProxyConfig
 import com.minhui.vpn.VPNConstants
@@ -41,6 +42,7 @@ class MainActivity : FlutterActivity() {
     private var timer: ScheduledExecutorService? = null
     private lateinit var handler: Handler
     private var allNetConnection: MutableList<NatSession> = mutableListOf()
+
     private var listener: ProxyConfig.VpnStatusListener = object : ProxyConfig.VpnStatusListener {
 
         override fun onVpnStart(context: Context) {
@@ -50,6 +52,10 @@ class MainActivity : FlutterActivity() {
         override fun onVpnEnd(context: Context) {
             stopTimer()
         }
+    }
+
+    private fun getTag(): String {
+        return MainActivity.javaClass.simpleName
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -164,7 +170,13 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun transfer() {
-        val raw = allNetConnection
+        // TODO: 修复获取不到包名的问题~
+        val raw = allNetConnection.filter { natSession: NatSession ->
+            var result = natSession.bytesSent > 0 && natSession.receivedByteNum > 0
+            result = result && natSession.appInfo?.pkgs?.getAt(0) != null
+            result
+        }
+        Log.i(getTag(), "session size: ${raw.size}")
         val sessionsBuilder = NatSessionModel.NatSessions.newBuilder()
         for (natSession in raw) {
             val session = natSession.transform(this)

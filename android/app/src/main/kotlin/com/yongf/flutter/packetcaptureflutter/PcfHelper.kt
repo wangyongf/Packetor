@@ -7,15 +7,12 @@ import com.minhui.vpn.utils.VpnServiceHelper
  * @author scottwang1996@qq.com
  * @since 2019/1/3.
  */
-class PcfHelper {
+object PcfHelper {
+    fun startVPN(context: Context) {
+        VpnServiceHelper.changeVpnRunningStatus(context, true)
+    }
 
-    companion object {
-        fun startVPN(context: Context) {
-            VpnServiceHelper.changeVpnRunningStatus(context, true)
-        }
-
-        fun stopVPN(context: Context) {
-            VpnServiceHelper.changeVpnRunningStatus(context, false)
-        }
+    fun stopVPN(context: Context) {
+        VpnServiceHelper.changeVpnRunningStatus(context, false)
     }
 }
