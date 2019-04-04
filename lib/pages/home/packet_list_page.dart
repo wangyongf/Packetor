@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +16,14 @@ class PacketListPage extends StatefulWidget {
 }
 
 class _PacketListPageState extends State<PacketListPage> {
+  var _random;
+
+  @override
+  void initState() {
+    super.initState();
+    _random = Random();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,6 +41,7 @@ class _PacketListPageState extends State<PacketListPage> {
   }
 
   _buildItem(BuildContext context, int position) {
+    var next = _random.nextInt(10);
     return InkWell(
       onTap: () {
         _gotoPacketDetailPage();
@@ -54,36 +65,37 @@ class _PacketListPageState extends State<PacketListPage> {
                     children: <Widget>[
                       Text(
                         widget.sessions?.session[position]?.appInfo?.appName ??
-                            'Unknown App',
+                            '未知应用',
                         style: TextStyle(
                             color: Colors.black,
-                            fontSize: 18,
+                            fontSize: 17,
                             fontWeight: FontWeight.w500),
                       ),
                       Expanded(
                         child: Text(
                           '${formatDate(widget.sessions?.session[position]?.connectionStartTime)}',
-                          style: TextStyle(color: Colors.black38, fontSize: 16),
+                          style: TextStyle(color: Colors.black38, fontSize: 14),
                           textAlign: TextAlign.end,
                         ),
                       )
                     ],
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 5),
+                    padding: EdgeInsets.only(top: 1),
                     child: Row(
+                      mainAxisSize: MainAxisSize.max,
                       children: <Widget>[
                         Text(
-                          widget.sessions?.session[position]?.method
-                              ?.toUpperCase(),
+                          _getSessionType(widget.sessions?.session[position])
+                              .toUpperCase(),
                           style: TextStyle(color: Colors.black, fontSize: 15),
                         ),
                         SizedBox(
-                          width: 10,
+                          width: 8,
                         ),
                         Expanded(
                           child: Text(
-                            widget.sessions?.session[position]?.requestUrl,
+                            _getSessionUrl(widget.sessions?.session[position]),
                             style: TextStyle(color: Colors.black, fontSize: 15),
                             maxLines: 1,
                             softWrap: false,
@@ -94,12 +106,30 @@ class _PacketListPageState extends State<PacketListPage> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 5),
-                    child: Text(
-                      '200 OK',
-                      style: TextStyle(color: Colors.blueAccent, fontSize: 15),
-                    ),
-                  )
+                      padding: EdgeInsets.only(top: 1),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          Text(
+                            _getSessionState(
+                                widget.sessions?.session[position]),
+                            style: TextStyle(
+                                color: next > 5
+                                    ? Colors.blueAccent
+                                    : Colors.orange,
+                                fontSize: 15),
+                          ),
+                          Expanded(
+                            child: Container(),
+                          ),
+                          Text(
+                            _getTransferDataSize(
+                                widget.sessions?.session[position]),
+                            style:
+                                TextStyle(color: Colors.black54, fontSize: 15),
+                          ),
+                        ],
+                      ))
                 ],
               ),
             ),
@@ -107,6 +137,65 @@ class _PacketListPageState extends State<PacketListPage> {
         ),
       ),
     );
+  }
+
+  String _getTransferDataSize(NatSession session) {
+    if (session == null) {
+      return '';
+    }
+    int sumByte = session.bytesSent + session.receivedByteNum.toInt();
+    String size = '';
+    if (sumByte > (2 << 20)) {
+      size = (sumByte / ((2 << 20) * 1.0) + 0.5).toString() + "MB";
+    } else if (sumByte > (2 << 10)) {
+      size = (sumByte / ((2 << 10) * 1.0) + 0.5).toString() + "KB";
+    } else {
+      size = sumByte.toString() + "B";
+    }
+    return size;
+  }
+
+  String _getSessionState(NatSession session) {
+    if (session == null) {
+      return '无响应';
+    }
+    if (session.receivedByteNum > 0) {
+      return '200 OK';
+    } else {
+      return '无响应';
+    }
+  }
+
+  String _getSessionType(NatSession session) {
+    if (session == null) {
+      return 'unknown';
+    }
+    String type = session.type;
+    if (session.type == 'TCP') {
+      type = session.method;
+    }
+    if (type == null || type.isEmpty) {
+      type = 'TYPE';
+    }
+    return type;
+  }
+
+  String _getSessionUrl(NatSession session) {
+    if (session == null) {
+      return 'some host';
+    }
+    String url = session.remoteHost;
+    if (session.type == 'TCP' && session.requestUrl.isNotEmpty) {
+      url = session.requestUrl;
+    }
+    return url;
+  }
+
+  String _getIpAndPort(NatSession session) {
+    if (session == null) {
+      return 'unknown host';
+    }
+    return session.ipAndPort;
   }
 
   Widget _getIcon(int position) {
