@@ -73,6 +73,7 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
     );
   }
 
+  /// TODO: 优化 header, body 的 UI 展示
   String _isRequest() {
     return widget.request?.isRequest.toString() ?? '';
   }
