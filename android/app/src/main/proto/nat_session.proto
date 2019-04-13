@@ -25,7 +25,8 @@ message NatSession {
     int64 connectionStartTime = 17;
     int64 vpnStartTime = 18;
     bool isHttp = 19;
-    AppInfo appInfo = 20;
+    string uniqueName = 20;
+    AppInfo appInfo = 21;
 }
 
 message AppInfo {

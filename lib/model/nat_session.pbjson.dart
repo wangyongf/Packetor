@@ -33,7 +33,8 @@ const NatSession$json = const {
     const {'1': 'connectionStartTime', '3': 17, '4': 1, '5': 3, '10': 'connectionStartTime'},
     const {'1': 'vpnStartTime', '3': 18, '4': 1, '5': 3, '10': 'vpnStartTime'},
     const {'1': 'isHttp', '3': 19, '4': 1, '5': 8, '10': 'isHttp'},
-    const {'1': 'appInfo', '3': 20, '4': 1, '5': 11, '6': '.com.yongf.flutter.packetcaptureflutter.model.AppInfo', '10': 'appInfo'},
+    const {'1': 'uniqueName', '3': 20, '4': 1, '5': 9, '10': 'uniqueName'},
+    const {'1': 'appInfo', '3': 21, '4': 1, '5': 11, '6': '.com.yongf.flutter.packetcaptureflutter.model.AppInfo', '10': 'appInfo'},
   ],
 };
 

@@ -2,9 +2,12 @@ import 'dart:math';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'package:packet_capture_flutter/common/routes.dart';
+import 'package:packet_capture_flutter/common/constants.dart';
 import 'package:packet_capture_flutter/model/nat_session.pb.dart';
+import 'package:packet_capture_flutter/pages/detail/packet_detail_page.dart';
+import 'package:packet_capture_flutter/utils/TimeFormatUtil.dart';
 
 class PacketListPage extends StatefulWidget {
   final NatSessions sessions;
@@ -44,7 +47,7 @@ class _PacketListPageState extends State<PacketListPage> {
     var next = _random.nextInt(10);
     return InkWell(
       onTap: () {
-        _gotoPacketDetailPage();
+        _gotoPacketDetailPage(position);
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 8),
@@ -220,7 +223,25 @@ class _PacketListPageState extends State<PacketListPage> {
     return formatter.format(dateTime);
   }
 
-  _gotoPacketDetailPage() {
-    Navigator.of(context).pushNamed(Routes.PACKET_DETAIL_PAGE);
+  _gotoPacketDetailPage(int position) {
+    NatSession session = widget.sessions.session[position];
+    if (session.type != Constants.TCP) {
+      Fluttertoast.showToast(msg: '暂时只支持查看 TCP 类型请求');
+      return;
+    }
+
+    /// TODO: fix 请求数据目录不正确的问题
+    String dir = Constants.DATA_DIR +
+        TimeFormatUtil.format(widget.sessions.session[position].vpnStartTime) +
+        "/" +
+        widget.sessions.session[position].uniqueName;
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (BuildContext context) {
+      return PacketDetailPage(
+        sessions: widget.sessions,
+        index: position,
+        sessionPath: dir,
+      );
+    }));
   }
 }

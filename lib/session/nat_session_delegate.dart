@@ -18,6 +18,10 @@ class NatSessionDelegate {
     return 'flutter.yongf.com/pcf';
   }
 
+  String get _sessionChannel {
+    return 'flutter.yongf.com/pcf/session';
+  }
+
   Future<dynamic> requestSessions() async {
     Completer completer = new Completer();
     BinaryMessages.setMessageHandler(_channel, (ByteData message) {
@@ -27,6 +31,19 @@ class NatSessionDelegate {
     });
 
     NatSessionManager().requestSessions();
+    return completer.future;
+  }
+
+  Future<dynamic> requestSessionByDir(String dir) async {
+    if (dir == null || dir.isEmpty) {
+      return null;
+    }
+    Completer completer = Completer();
+    BinaryMessages.setMessageHandler(_sessionChannel, (ByteData message) {
+      completer.complete(message);
+      BinaryMessages.setMessageHandler(_sessionChannel, null);
+    });
+    NatSessionManager().requestSession(dir);
     return completer.future;
   }
 }

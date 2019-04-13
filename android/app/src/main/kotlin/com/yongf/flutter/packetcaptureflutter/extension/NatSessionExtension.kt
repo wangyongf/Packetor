@@ -14,9 +14,8 @@ import java.io.ByteArrayOutputStream
  * @author wangyong.1996@bytedance.com
  * @since 2019/3/30.
  */
-fun NatSession.transform(activity: Activity): NatSessionModel.NatSession {
+fun NatSession.toProtoModel(activity: Activity): NatSessionModel.NatSession {
     val natSession = this
-
     return NatSessionModel.NatSession.newBuilder()
             .setType(natSession.getType())
             .setIpAndPort(natSession.getIpAndPort())
@@ -36,6 +35,7 @@ fun NatSession.transform(activity: Activity): NatSessionModel.NatSession {
             .setConnectionStartTime(natSession.getConnectionStartTime())
             .setVpnStartTime(natSession.getVpnStartTime())
             .setIsHttp(natSession.isHttp())
+            .setUniqueName(natSession.uniqueName)
             .setAppInfo(NatSessionModel.AppInfo.newBuilder()
                     .setAppName(getAppName(activity, natSession.getAppInfo()))
                     .setPackageName(getAppPackageName(activity, natSession.getAppInfo()))

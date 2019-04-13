@@ -5,24 +5,26 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.BatteryManager
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
+import android.os.*
 import android.support.v4.app.ActivityCompat
+import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import com.minhui.vpn.ProxyConfig
 import com.minhui.vpn.VPNConstants
 import com.minhui.vpn.VPNConstants.DEFAULT_PACKAGE_ID
 import com.minhui.vpn.nat.NatSession
+import com.minhui.vpn.utils.SaveDataFileParser
 import com.minhui.vpn.utils.ThreadProxy
 import com.minhui.vpn.utils.VpnServiceHelper
-import com.yongf.flutter.packetcaptureflutter.extension.transform
+import com.yongf.flutter.packetcaptureflutter.extension.toProtoModel
 import com.yongf.flutter.packetcaptureflutter.model.NatSessionModel
+import com.yongf.flutter.packetcaptureflutter.model.NatSessionRequestModel
 import io.flutter.app.FlutterActivity
+import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
+import java.io.File
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.Executors
@@ -34,10 +36,14 @@ class MainActivity : FlutterActivity() {
     companion object {
         const val CHANNEL = "pcf.flutter.yongf.com/battery"
         const val PCF_CHANNEL = "flutter.yongf.com/pcf"
+        const val PCF_TRANSFER_SESSION = "flutter.yongf.com/pcf/session"
+
+        const val ARG_SESSION_DIR = "session_dir"
     }
 
     private lateinit var channel: MethodChannel
     private lateinit var pcf: MethodChannel
+    private lateinit var pcfSession: MethodChannel
 
     private var timer: ScheduledExecutorService? = null
     private lateinit var handler: Handler
@@ -91,8 +97,60 @@ class MainActivity : FlutterActivity() {
             }
         }
 
+        pcfSession = MethodChannel(flutterView, PCF_TRANSFER_SESSION)
+        pcfSession.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "transferSessionByDir" -> transferSessionByDir(call)
+                else -> result.notImplemented()
+            }
+        }
+
         getData()
         checkPermission()
+    }
+
+    private fun transferSessionByDir(call: MethodCall) {
+        var sessionDir: String? = call.argument(ARG_SESSION_DIR)
+        if (TextUtils.isEmpty(sessionDir)) {
+            return
+        }
+        sessionDir = Environment.getExternalStorageDirectory().absolutePath + sessionDir
+        Log.i(getTag(), sessionDir)
+        ThreadProxy.getInstance().execute {
+            var file = File(sessionDir)
+            val files = file.listFiles()
+            if (files == null || files.isEmpty()) {
+                Log.i(getTag(), "empty")
+                return@execute
+            }
+            val filesList = mutableListOf<File>()
+            for (childFile in files) {
+                filesList.add(childFile)
+            }
+            Collections.sort(filesList, object : Comparator<File> {
+                override fun compare(o1: File, o2: File): Int {
+                    return (o1.lastModified() - o2.lastModified()).toInt()
+                }
+            })
+            val showDataList = mutableListOf<SaveDataFileParser.ShowData>()
+            for (childFile in filesList) {
+                val showData = SaveDataFileParser.parseSaveFile(childFile)
+                if (showData != null) {
+                    showDataList.add(showData)
+                }
+            }
+            val requestsBuilder = NatSessionRequestModel.NatSessionRequests.newBuilder()
+            for (showData in showDataList) {
+                val request = showData.toProtoModel()
+                requestsBuilder.addRequest(request)
+            }
+            val requests = requestsBuilder.build()
+            val bytes = requests.toByteArray()
+            val buffer = ByteBuffer.allocateDirect(bytes.size)
+            buffer.put(bytes)
+            flutterView.send(PCF_TRANSFER_SESSION, buffer)
+            buffer.clear()
+        }
     }
 
     private fun checkPermission() {
@@ -170,16 +228,14 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun transfer() {
-        // TODO: 修复获取不到包名的问题~
         val raw = allNetConnection.filter { natSession: NatSession ->
             var result = natSession.bytesSent > 0 && natSession.receivedByteNum > 0
             result = result && natSession.appInfo?.pkgs?.getAt(0) != null
             result
         }
-        Log.i(getTag(), "session size: ${raw.size}")
         val sessionsBuilder = NatSessionModel.NatSessions.newBuilder()
         for (natSession in raw) {
-            val session = natSession.transform(this)
+            val session = natSession.toProtoModel(this)
             sessionsBuilder.addSession(session)
         }
         val sessions = sessionsBuilder.build()

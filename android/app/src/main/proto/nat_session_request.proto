@@ -1,0 +1,13 @@
+syntax = "proto3";
+package com.yongf.flutter.packetcaptureflutter.model;
+option java_outer_classname = "NatSessionRequestModel";
+message NatSessionRequests {
+    repeated NatSessionRequest request = 1;
+}
+
+message NatSessionRequest {
+    bool isRequest = 1;
+    string headStr = 2;
+    string bodyStr = 3;
+    bytes bodyImage = 4;
+}

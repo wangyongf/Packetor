@@ -17,8 +17,15 @@ class NatSessionManager {
   NatSessionManager._internal();
 
   MethodChannel _channel = MethodChannel('flutter.yongf.com/pcf');
+  MethodChannel _sessionChannel =
+      MethodChannel('flutter.yongf.com/pcf/session');
 
   Future<dynamic> requestSessions() async {
     await _channel.invokeMethod("transfer");
+  }
+
+  Future<dynamic> requestSession(String dir) async {
+    var param = {'session_dir': dir};
+    await _sessionChannel.invokeMethod('transferSessionByDir', Map.of(param));
   }
 }

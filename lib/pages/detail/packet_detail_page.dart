@@ -1,10 +1,23 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:packet_capture_flutter/model/nat_session.pb.dart';
+import 'package:packet_capture_flutter/model/nat_session_request.pb.dart';
 import 'package:packet_capture_flutter/pages/detail/packet_detail_overview.dart';
 import 'package:packet_capture_flutter/pages/detail/packet_detail_request.dart';
 import 'package:packet_capture_flutter/pages/detail/packet_detail_response.dart';
+import 'package:packet_capture_flutter/session/nat_session_delegate.dart';
 import 'package:share/share.dart';
 
 class PacketDetailPage extends StatefulWidget {
+  final NatSessions sessions;
+  final int index;
+  final String sessionPath;
+
+  const PacketDetailPage({Key key, this.sessions, this.index, this.sessionPath})
+      : super(key: key);
+
   @override
   _PacketDetailPageState createState() => _PacketDetailPageState();
 }
@@ -12,12 +25,32 @@ class PacketDetailPage extends StatefulWidget {
 class _PacketDetailPageState extends State<PacketDetailPage>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
+  NatSessionRequests _sessionRequests;
+
+  // TODO: NatSessionResponses
 
   @override
   void initState() {
     super.initState();
 
     _tabController = TabController(length: 3, vsync: this);
+    _refreshSession();
+  }
+
+  Future<void> _refreshSession() async {
+    var result;
+    try {
+      NatSessionDelegate delegate = NatSessionDelegate();
+      ByteData message = await delegate.requestSessionByDir(widget.sessionPath);
+      List<int> bytes = message.buffer
+          .asUint8List(message.offsetInBytes, message.lengthInBytes);
+      result = NatSessionRequests.fromBuffer(bytes);
+    } on PlatformException catch (e) {
+      debugPrint('PlatformException: ${e.message}');
+    }
+    setState(() {
+      _sessionRequests = result;
+    });
   }
 
   @override
@@ -69,9 +102,21 @@ class _PacketDetailPageState extends State<PacketDetailPage>
 
   _buildBody() {
     return TabBarView(controller: _tabController, children: <Widget>[
-      PacketDetailOverview(),
-      PacketDetailRequest(),
-      PacketDetailResponse(),
+      PacketDetailOverview(
+        sessions: widget.sessions,
+        index: widget.index,
+        request: _sessionRequests?.request != null ? _sessionRequests?.request[0] : null,
+      ),
+      PacketDetailRequest(
+        sessions: widget.sessions,
+        index: widget.index,
+        request: _sessionRequests?.request != null ? _sessionRequests?.request[0] : null,
+      ),
+      PacketDetailResponse(
+        sessions: widget.sessions,
+        index: widget.index,
+        request: _sessionRequests?.request != null ? _sessionRequests?.request[0] : null,
+      ),
     ]);
   }
 

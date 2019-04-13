@@ -52,7 +52,8 @@ class NatSession extends $pb.GeneratedMessage {
     ..aInt64(17, 'connectionStartTime')
     ..aInt64(18, 'vpnStartTime')
     ..aOB(19, 'isHttp')
-    ..a<AppInfo>(20, 'appInfo', $pb.PbFieldType.OM, AppInfo.getDefault, AppInfo.create)
+    ..aOS(20, 'uniqueName')
+    ..a<AppInfo>(21, 'appInfo', $pb.PbFieldType.OM, AppInfo.getDefault, AppInfo.create)
     ..hasRequiredFields = false
   ;
 
@@ -163,10 +164,15 @@ class NatSession extends $pb.GeneratedMessage {
   bool hasIsHttp() => $_has(18);
   void clearIsHttp() => clearField(19);
 
-  AppInfo get appInfo => $_getN(19);
-  set appInfo(AppInfo v) { setField(20, v); }
-  bool hasAppInfo() => $_has(19);
-  void clearAppInfo() => clearField(20);
+  String get uniqueName => $_getS(19, '');
+  set uniqueName(String v) { $_setString(19, v); }
+  bool hasUniqueName() => $_has(19);
+  void clearUniqueName() => clearField(20);
+
+  AppInfo get appInfo => $_getN(20);
+  set appInfo(AppInfo v) { setField(21, v); }
+  bool hasAppInfo() => $_has(20);
+  void clearAppInfo() => clearField(21);
 }
 
 class AppInfo extends $pb.GeneratedMessage {
