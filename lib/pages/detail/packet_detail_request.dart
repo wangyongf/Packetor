@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:packet_capture_flutter/http/HttpRequest.dart';
 import 'package:packet_capture_flutter/model/nat_session.pb.dart';
 import 'package:packet_capture_flutter/model/nat_session_request.pb.dart';
 import 'package:packet_capture_flutter/pages/detail/packet_detail_bottom_radio.dart';
@@ -86,22 +87,44 @@ class _PacketDetailRequestState extends State<PacketDetailRequest> {
 
   _getRawOption() {
     return Text(
-      'GET /description.xml HTTP/1.1\nHOST: 192.168.2.131:49152\nDATE: Wed, 02 Jan 2019\nCONNECTION: keep-alive',
+      _buildRawText(),
       style: TextStyle(color: Colors.black, fontSize: 15),
     );
   }
 
+  String _buildRawText() {
+    return widget.request?.headStr ?? "";
+  }
+
+  String _buildRequestLine() {
+    var method = widget.sessions.session[widget.index].method;
+    var url = widget.sessions.session[widget.index].requestUrl;
+    var path = Uri
+      .parse(url)
+      .path;
+    var httpVersion = 'HTTP/1.1';
+    return "$method $path $httpVersion";
+  }
+
+  String _buildRequestHeaders() {
+    var result = "";
+    return result;
+  }
+
+  Map<String, String> _getHeaderMap() {
+    HttpRequest request = HttpRequest.parse(widget.request?.headStr ?? "");
+    return request.getHeaders();
+  }
+
   _getHeadersOption() {
+    List<Widget> headers = List();
+    _getHeaderMap().forEach((String key, String value) {
+      var single = _getHeader(key, value);
+      headers.add(single);
+      headers.add(Divider());
+    });
     return Column(
-      children: <Widget>[
-        _getHeader('HOST', '192.168.2.131:49152'),
-        Divider(),
-        _getHeader('DATE', 'Wed, 02 Jan 2019 12:52:43 GMT'),
-        Divider(),
-        _getHeader('CONNECTION', 'keep-alive'),
-        Divider(),
-        _getHeader('USER-AGENT', 'Linux/3.3.0, UPnP/1.0')
-      ],
+      children: headers,
     );
   }
 
