@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:packet_capture_flutter/http/HttpRequest.dart';
-import 'package:packet_capture_flutter/model/nat_session.pb.dart';
+import 'package:packet_capture_flutter/http/HttpResponse.dart';
 import 'package:packet_capture_flutter/model/nat_session_request.pb.dart';
 import 'package:packet_capture_flutter/pages/detail/packet_detail_bottom_radio.dart';
 
 class PacketDetailRequest extends StatefulWidget {
-  final NatSessions sessions;
-  final int index;
   final NatSessionRequest request;
 
-  const PacketDetailRequest({Key key, this.sessions, this.index, this.request})
+  const PacketDetailRequest({Key key, this.request})
       : super(key: key);
 
   @override
@@ -96,16 +93,6 @@ class _PacketDetailRequestState extends State<PacketDetailRequest> {
     return widget.request?.headStr ?? "";
   }
 
-  String _buildRequestLine() {
-    var method = widget.sessions.session[widget.index].method;
-    var url = widget.sessions.session[widget.index].requestUrl;
-    var path = Uri
-      .parse(url)
-      .path;
-    var httpVersion = 'HTTP/1.1';
-    return "$method $path $httpVersion";
-  }
-
   String _buildRequestHeaders() {
     var result = "";
     return result;
@@ -118,18 +105,17 @@ class _PacketDetailRequestState extends State<PacketDetailRequest> {
 
   _getHeadersOption() {
     List<Widget> headers = List();
-    _getHeaderMap().forEach((String key, String value) {
+    _getHeaderMap()?.forEach((String key, String value) {
       var single = _getHeader(key, value);
       headers.add(single);
       headers.add(Divider());
     });
-    return Column(
+    return ListView(
       children: headers,
     );
   }
 
   _getHeader(String key, String value) {
-    /// TODO: 使用 TextSpan 来实现？
     return InkWell(
       onTap: () {
         _showDetailDialog(key, value);
@@ -138,23 +124,29 @@ class _PacketDetailRequestState extends State<PacketDetailRequest> {
         padding: EdgeInsets.symmetric(vertical: 2.5),
         child: Row(
           children: <Widget>[
-            Text(
-              key + ': ',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
+            Expanded(
+              flex: 1,
+              child: Text(
+                key + ': ',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            Text(
-              value,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 15,
+            Expanded(
+              flex: 2,
+              child: Text(
+                value,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 15,
+                ),
+                textAlign: TextAlign.justify,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
-              textAlign: TextAlign.justify,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
             )
           ],
         ),

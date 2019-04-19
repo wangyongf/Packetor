@@ -108,16 +108,38 @@ class _PacketDetailPageState extends State<PacketDetailPage>
         request: _sessionRequests?.request != null ? _sessionRequests?.request[0] : null,
       ),
       PacketDetailRequest(
-        sessions: widget.sessions,
-        index: widget.index,
-        request: _sessionRequests?.request != null ? _sessionRequests?.request[0] : null,
+        request: _retrieveRequest(),
       ),
       PacketDetailResponse(
-        sessions: widget.sessions,
-        index: widget.index,
-        request: _sessionRequests?.request != null ? _sessionRequests?.request[0] : null,
+        response: _retrieveResponse(),
       ),
     ]);
+  }
+
+  /// 从列表中获取第一个类型是 request 的
+  NatSessionRequest _retrieveRequest() {
+    if (_sessionRequests == null) {
+      return null;
+    }
+    for (var request in _sessionRequests.request) {
+      if (request != null && request.isRequest) {
+        return request;
+      }
+    }
+    return null;
+  }
+
+  /// 从列表中获取第一个类型是 response 的
+  NatSessionRequest _retrieveResponse() {
+    if (_sessionRequests == null) {
+      return null;
+    }
+    for (var response in _sessionRequests.request) {
+      if (response != null && !response.isRequest) {
+        return response;
+      }
+    }
+    return null;
   }
 
   @override

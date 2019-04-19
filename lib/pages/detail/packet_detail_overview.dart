@@ -34,7 +34,7 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
             ),
             _divider(),
             _divider(),
-            _buildStatusItem('注入', _getInjectStatus()),
+            _buildStatusItem('是否注入', _getInjectStatus()),
             _divider(),
             _buildStatusItem('isRequest', _isRequest()),
             _divider(),
@@ -44,7 +44,7 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
             _divider(),
             _buildStatusItem('bodyImage', _getBodyImage()),
             _divider(),
-            _buildStatusItem('协议', _getProtocol()),
+            _buildStatusItem('Protocol', _getProtocol()),
             _divider(),
             _buildStatusItem('host', _getRemoteHost()),
             _divider(),
@@ -96,12 +96,13 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
   }
 
   String _getResponseDataSize() {
-    return widget.sessions.session[widget.index].receivedByteNum.toString() ??
+    return widget.sessions.session[widget.index].receivedByteNum.toString() +
+      "B" ??
         '245B';
   }
 
   String _getRequestDataSize() {
-    return widget.sessions.session[widget.index].bytesSent.toString() ??
+    return widget.sessions.session[widget.index].bytesSent.toString() + "B" ??
         '0.94KB';
   }
 
@@ -152,8 +153,15 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
   }
 
   String _getRequestUrl() {
-    return widget.sessions.session[widget.index].requestUrl ??
-        'http://8.wacai.com/finance.do';
+    var requestUrl = widget.sessions.session[widget.index].requestUrl;
+    if (requestUrl == null || requestUrl.isEmpty) {
+      var host = widget.sessions.session[widget.index].remoteHost;
+      if (host != null && host.isNotEmpty) {
+        return host;
+      }
+      return "https://blog.54yongf.com";
+    }
+    return requestUrl;
   }
 
   Container _buildTitle(String title) {

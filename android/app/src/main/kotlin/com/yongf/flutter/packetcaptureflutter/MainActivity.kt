@@ -123,15 +123,12 @@ class MainActivity : FlutterActivity() {
                 Log.i(getTag(), "empty")
                 return@execute
             }
+            Log.i(getTag(), "file size: " + files.size)
             val filesList = mutableListOf<File>()
             for (childFile in files) {
                 filesList.add(childFile)
             }
-            Collections.sort(filesList, object : Comparator<File> {
-                override fun compare(o1: File, o2: File): Int {
-                    return (o1.lastModified() - o2.lastModified()).toInt()
-                }
-            })
+            filesList.sortWith(Comparator { o1, o2 -> (o1.lastModified() - o2.lastModified()).toInt() })
             val showDataList = mutableListOf<SaveDataFileParser.ShowData>()
             for (childFile in filesList) {
                 val showData = SaveDataFileParser.parseSaveFile(childFile)
