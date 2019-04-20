@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:packet_capture_flutter/model/nat_session.pb.dart';
 import 'package:packet_capture_flutter/pages/home/packet_list_page.dart';
+import 'package:packet_capture_flutter/pages/setting/settings_page.dart';
 import 'package:packet_capture_flutter/session/nat_session_delegate.dart';
 import 'package:packet_capture_flutter/widget/sexy_fab.dart';
 
@@ -80,8 +81,82 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: _buildBody(),
-
-      /// FIXME: 14:53:10.471 1 info flutter.tools I/flutter (12584): Another exception was thrown: There are multiple heroes that share the same tag within a subtree.
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text("Scott Wang"),
+              accountEmail: Text("ScottWang1996#qq.com"),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Theme
+                  .of(context)
+                  .platform == TargetPlatform.android ?
+                Colors.blue : Colors.white,
+                child: Text("A", style: TextStyle(fontSize: 40),),
+              ),
+            ),
+            ListTile(
+              onTap: () {
+                Fluttertoast.showToast(msg: "收藏功能开发中，敬请期待");
+              },
+              title: Text("收藏"),
+              leading: Icon(Icons.stars),
+            ),
+            ListTile(
+              onTap: () {
+                Fluttertoast.showToast(msg: "历史记录功能开发中，敬请期待");
+              },
+              title: Text("历史记录"),
+              leading: Icon(Icons.history),
+            ),
+            ListTile(
+              onTap: () {
+                Fluttertoast.showToast(msg: "使用手册功能开发中，敬请期待");
+              },
+              title: Text("使用手册"),
+              leading: Icon(Icons.help_outline),
+            ),
+            ListTile(
+              onTap: () {
+                Fluttertoast.showToast(msg: "目前本应用所有功能免费开放，感谢支持！");
+              },
+              title: Text("高级版本"),
+              leading: Icon(Icons.attach_money),
+            ),
+            ListTile(
+              onTap: () {
+                Fluttertoast.showToast(msg: "评分功能开发中，感谢支持！");
+              },
+              title: Text("去评分"),
+              leading: Icon(Icons.star_half),
+            ),
+            ListTile(
+              onTap: () {
+                Fluttertoast.showToast(msg: "评分功能开发中，感谢支持！");
+              },
+              title: Text("分享"),
+              leading: Icon(Icons.share),
+            ),
+            ListTile(
+              onTap: () {
+                Fluttertoast.showToast(msg: "关于页面开发中，感谢支持！");
+              },
+              title: Text("关于"),
+              leading: Icon(Icons.info),
+            ),
+            ListTile(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    return SettingsPage();
+                  }));
+              },
+              title: Text("设置"),
+              leading: Icon(Icons.settings),
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: SexyFab(
         itemCount: 3,
         itemBuilder: (BuildContext context, int index) {

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:packet_capture_flutter/model/nat_session.pb.dart';
 import 'package:packet_capture_flutter/model/nat_session_request.pb.dart';
+import 'package:packet_capture_flutter/pages/detail/url_preview_page.dart';
 
 class PacketDetailOverview extends StatefulWidget {
   final NatSessions sessions;
@@ -25,11 +26,26 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              child: Text(
-                _getRequestUrl(),
-                style: TextStyle(color: Colors.black, fontSize: 15),
+            InkWell(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    return UrlPreviewPage(url: _getRequestUrl(),);
+                  }));
+              },
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        _getRequestUrl(),
+                        style: TextStyle(color: Colors.black, fontSize: 15),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             _divider(),
@@ -37,12 +53,12 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
             _buildStatusItem('是否注入', _getInjectStatus()),
             _divider(),
             _buildStatusItem('isRequest', _isRequest()),
-            _divider(),
-            _buildStatusItem('headStr', _getHeadStr()),
-            _divider(),
-            _buildStatusItem('bodyStr', _getBodyStr()),
-            _divider(),
-            _buildStatusItem('bodyImage', _getBodyImage()),
+//            _divider(),
+//            _buildStatusItem('headStr', _getHeadStr()),
+//            _divider(),
+//            _buildStatusItem('bodyStr', _getBodyStr()),
+//            _divider(),
+//            _buildStatusItem('bodyImage', _getBodyImage()),
             _divider(),
             _buildStatusItem('Protocol', _getProtocol()),
             _divider(),
@@ -177,12 +193,12 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
   }
 
   _buildStatusItem(String key, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 9, horizontal: 12),
-      child: InkWell(
-        onTap: () {
-          _showDetailDialog(key, value);
-        },
+    return InkWell(
+      onTap: () {
+        _showDetailDialog(key, value);
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 9, horizontal: 12),
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
@@ -191,14 +207,14 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
                 key,
                 style: TextStyle(color: Colors.black, fontSize: 15),
               ),
-              flex: 5,
+              flex: 1,
             ),
             Expanded(
               child: Text(
                 value,
                 style: TextStyle(color: Colors.black, fontSize: 15),
               ),
-              flex: 9,
+              flex: 2,
             )
           ],
         ),
@@ -217,7 +233,12 @@ class _PacketDetailOverviewState extends State<PacketDetailOverview> {
         context: context,
         builder: (_) => AlertDialog(
                 title: Text(key),
-                content: Text(value),
+          content: ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              Text(value),
+            ],
+          ),
                 actions: <Widget>[
                   FlatButton(
                     child: Text("复制"),

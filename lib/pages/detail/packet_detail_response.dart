@@ -106,7 +106,9 @@ class _PacketDetailResponseState extends State<PacketDetailResponse> {
       headers.add(Divider());
     });
     if (headers.length == 0) {
-      return Container();
+      return Center(
+        child: Text("无数据"),
+      );
     }
     return ListView(
       children: headers,
@@ -152,20 +154,115 @@ class _PacketDetailResponseState extends State<PacketDetailResponse> {
   }
 
   _getTextOption() {
+    var text = widget.response?.bodyStr ?? "无数据";
+    if (text.isEmpty) {
+      text = "无数据";
+    }
     return Center(
-      child: Text('无数据'),
+      child: Container(
+        child: Text(text),
+      ),
     );
   }
 
   _getHexOption() {
     return Center(
-      child: Text('无数据'),
+      child: Text('功能开发中，敬请期待'),
     );
   }
 
   _getPreviewOption() {
-    return Center(
-      child: Text('不支持预览'),
+    if (widget.response == null || widget.response.bodyStr == null
+      || widget.response.bodyStr.isEmpty) {
+      return Center(
+        child: Text('不支持预览'),
+      );
+    }
+    return Container(
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    Fluttertoast.showToast(msg: "JSON");
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      color: Colors.redAccent,
+                      height: 120,
+                      child: Center(
+                        child: Text("JSON",
+                          style: TextStyle(
+                            color: Colors.white, fontSize: 18,),),
+                      ),
+                    ),
+                  ),
+                )),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    Fluttertoast.showToast(msg: "Bitmap");
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      color: Colors.lightBlue,
+                      height: 120,
+                      child: Center(
+                        child: Text("Bitmap",
+                          style: TextStyle(
+                            color: Colors.white, fontSize: 18,),),
+                      ),
+                    ),
+                  ),
+                )),
+            ],
+          ),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    Fluttertoast.showToast(msg: "XML");
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      color: Colors.deepOrange,
+                      height: 120,
+                      child: Center(
+                        child: Text("XML",
+                          style: TextStyle(
+                            color: Colors.white, fontSize: 18,),),
+                      ),
+                    ),
+                  ),
+                )),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    Fluttertoast.showToast(msg: "敬请期待~");
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      color: Colors.green,
+                      height: 120,
+                      child: Center(
+                        child: Text("敬请期待",
+                          style: TextStyle(
+                            color: Colors.white, fontSize: 18,),),
+                      ),
+                    ),
+                  ),
+                )),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

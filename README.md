@@ -51,6 +51,8 @@ samples, guidance on mobile development, and a full API reference.
 11. Chart，参考 Charles
 12. Notes，参考 Charles
 13. 全面参考 Charles 的功能，移动端全能 Charles
+14. 实现请求收藏功能
+15. 实现请求重发功能
 
 ## 站在巨人的肩膀上
 

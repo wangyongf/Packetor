@@ -155,14 +155,20 @@ class _PacketDetailRequestState extends State<PacketDetailRequest> {
   }
 
   _getTextOption() {
+    var text = widget.request?.bodyStr;
+    if (text == null || text.isEmpty) {
+      text = "无数据";
+    }
     return Center(
-      child: Text('无数据'),
+      child: Container(
+        child: Text(text),
+      ),
     );
   }
 
   _getHexOption() {
     return Center(
-      child: Text('无数据'),
+      child: Text("功能开发中，敬请期待"),
     );
   }
 
