@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
         Routes.TEST_PAGE: (BuildContext context) => TestPage(),
       },
       home: HomePage(title: 'Packetor'),
+//      home: TestPage(),
 //      home: PacketDetailPage(),
       debugShowCheckedModeBanner: false,
     );

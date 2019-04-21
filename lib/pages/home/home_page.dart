@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -26,6 +27,8 @@ class _HomePageState extends State<HomePage> {
   bool _isPacketMode = false;
   String _title = '';
   NatSessions _protobuf;
+  Timer _refreshTimer;
+  bool _enableAutoRefresh = false;
 
   Future<Null> _getBatteryLevel() async {
     String batteryLevel;
@@ -56,6 +59,17 @@ class _HomePageState extends State<HomePage> {
     _isPacketMode = false;
     _title = widget.title;
     _platform.setMethodCallHandler(_handleMethod);
+    _refreshTimer = Timer.periodic(Duration(milliseconds: 800), (timer) {
+      if (_enableAutoRefresh) {
+        _refreshSessions();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _refreshTimer.cancel();
   }
 
   @override
@@ -69,94 +83,19 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: <Widget>[
           SizedBox(
-              width: 60,
-              child: InkWell(
-                  onTap: () {
-                    Fluttertoast.showToast(msg: '「高级搜索功能开发中」');
-                  },
-                  child: Icon(Icons.youtube_searched_for))),
+            width: 60,
+            child: InkWell(
+              onTap: () {
+                Fluttertoast.showToast(msg: '「高级搜索功能开发中」');
+              },
+              child: Icon(Icons.youtube_searched_for))),
           SizedBox(
-              width: 60,
-              child: InkWell(onTap: () {}, child: Icon(Icons.layers_clear)))
+            width: 60,
+            child: InkWell(onTap: () {}, child: Icon(Icons.layers_clear)))
         ],
       ),
       body: _buildBody(),
-      drawer: Drawer(
-        child: ListView(
-          children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: Text("Scott Wang"),
-              accountEmail: Text("ScottWang1996#qq.com"),
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: Theme
-                  .of(context)
-                  .platform == TargetPlatform.android ?
-                Colors.blue : Colors.white,
-                child: Text("A", style: TextStyle(fontSize: 40),),
-              ),
-            ),
-            ListTile(
-              onTap: () {
-                Fluttertoast.showToast(msg: "收藏功能开发中，敬请期待");
-              },
-              title: Text("收藏"),
-              leading: Icon(Icons.stars),
-            ),
-            ListTile(
-              onTap: () {
-                Fluttertoast.showToast(msg: "历史记录功能开发中，敬请期待");
-              },
-              title: Text("历史记录"),
-              leading: Icon(Icons.history),
-            ),
-            ListTile(
-              onTap: () {
-                Fluttertoast.showToast(msg: "使用手册功能开发中，敬请期待");
-              },
-              title: Text("使用手册"),
-              leading: Icon(Icons.help_outline),
-            ),
-            ListTile(
-              onTap: () {
-                Fluttertoast.showToast(msg: "目前本应用所有功能免费开放，感谢支持！");
-              },
-              title: Text("高级版本"),
-              leading: Icon(Icons.attach_money),
-            ),
-            ListTile(
-              onTap: () {
-                Fluttertoast.showToast(msg: "评分功能开发中，感谢支持！");
-              },
-              title: Text("去评分"),
-              leading: Icon(Icons.star_half),
-            ),
-            ListTile(
-              onTap: () {
-                Fluttertoast.showToast(msg: "评分功能开发中，感谢支持！");
-              },
-              title: Text("分享"),
-              leading: Icon(Icons.share),
-            ),
-            ListTile(
-              onTap: () {
-                Fluttertoast.showToast(msg: "关于页面开发中，感谢支持！");
-              },
-              title: Text("关于"),
-              leading: Icon(Icons.info),
-            ),
-            ListTile(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (BuildContext context) {
-                    return SettingsPage();
-                  }));
-              },
-              title: Text("设置"),
-              leading: Icon(Icons.settings),
-            ),
-          ],
-        ),
-      ),
+      drawer: _buildDrawer(context),
       floatingActionButton: SexyFab(
         itemCount: 3,
         itemBuilder: (BuildContext context, int index) {
@@ -171,14 +110,93 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Drawer _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        children: <Widget>[
+          UserAccountsDrawerHeader(
+            accountName: Text("Scott Wang"),
+            accountEmail: Text("ScottWang1996#qq.com"),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Theme
+                .of(context)
+                .platform == TargetPlatform.android ?
+              Colors.blue : Colors.white,
+              child: Text("A", style: TextStyle(fontSize: 40),),
+            ),
+          ),
+          ListTile(
+            onTap: () {
+              Fluttertoast.showToast(msg: "收藏功能开发中，敬请期待");
+            },
+            title: Text("收藏"),
+            leading: Icon(Icons.stars),
+          ),
+          ListTile(
+            onTap: () {
+              Fluttertoast.showToast(msg: "历史记录功能开发中，敬请期待");
+            },
+            title: Text("历史记录"),
+            leading: Icon(Icons.history),
+          ),
+          ListTile(
+            onTap: () {
+              Fluttertoast.showToast(msg: "使用手册功能开发中，敬请期待");
+            },
+            title: Text("使用手册"),
+            leading: Icon(Icons.help_outline),
+          ),
+          ListTile(
+            onTap: () {
+              Fluttertoast.showToast(msg: "目前本应用所有功能免费开放，感谢支持！");
+            },
+            title: Text("高级版本"),
+            leading: Icon(Icons.attach_money),
+          ),
+          ListTile(
+            onTap: () {
+              Fluttertoast.showToast(msg: "评分功能开发中，感谢支持！");
+            },
+            title: Text("去评分"),
+            leading: Icon(Icons.star_half),
+          ),
+          ListTile(
+            onTap: () {
+              Fluttertoast.showToast(msg: "评分功能开发中，感谢支持！");
+            },
+            title: Text("分享"),
+            leading: Icon(Icons.share),
+          ),
+          ListTile(
+            onTap: () {
+              Fluttertoast.showToast(msg: "关于页面开发中，感谢支持！");
+            },
+            title: Text("关于"),
+            leading: Icon(Icons.info),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (BuildContext context) {
+                  return SettingsPage();
+                }));
+            },
+            title: Text("设置"),
+            leading: Icon(Icons.settings),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSexyFab(int index) {
     switch (index) {
       case 0:
         return _vpn();
       case 1:
-        return _image();
+        return _refresh();
       case 2:
-        return _inbox();
+        return _autoRefresh();
     }
     return Container();
   }
@@ -194,7 +212,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _image() {
+  Widget _refresh() {
     return Container(
       child: FloatingActionButton(
         heroTag: 'image',
@@ -205,13 +223,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _inbox() {
+  Widget _autoRefresh() {
     return Container(
       child: FloatingActionButton(
-        heroTag: 'inbox',
-        onPressed: null,
-        tooltip: 'Inbox',
-        child: Icon(Icons.inbox),
+        heroTag: 'autoRefresh',
+        onPressed: () {
+          setState(() {
+            _enableAutoRefresh = !_enableAutoRefresh;
+          });
+        },
+        tooltip: 'EnableAutoRefresh',
+        child: Icon(_enableAutoRefresh ? Icons.layers : Icons.layers_clear),
       ),
     );
   }
@@ -234,7 +256,7 @@ class _HomePageState extends State<HomePage> {
       NatSessionDelegate delegate = NatSessionDelegate();
       ByteData message = await delegate.requestSessions();
       List<int> bytes = message.buffer
-          .asUint8List(message.offsetInBytes, message.lengthInBytes);
+        .asUint8List(message.offsetInBytes, message.lengthInBytes);
       result = NatSessions.fromBuffer(bytes);
     } on PlatformException catch (e) {
       debugPrint('PlatformException: ${e.message}');
