@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:packet_capture_flutter/model/nat_session.pb.dart';
 import 'package:packet_capture_flutter/session/nat_session_manager.dart';
 
 class NatSessionDelegate {
@@ -45,5 +46,12 @@ class NatSessionDelegate {
     });
     NatSessionManager().requestSession(dir);
     return completer.future;
+  }
+
+  Future<dynamic> saveSession(NatSession session, String dir) async {
+    if (session == null || dir == null || dir.isEmpty) {
+      return null;
+    }
+    return await NatSessionManager().saveSession(session, dir);
   }
 }

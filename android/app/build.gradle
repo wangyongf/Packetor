@@ -51,6 +51,13 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation":
+                                     "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     buildTypes {
@@ -94,6 +101,10 @@ dependencies {
     implementation ('com.squareup.retrofit2:converter-protobuf:2.5.0') {
         exclude group: 'com.google.protobuf', module: 'protobuf-java'
     }
+
+    // Room
+    implementation "android.arch.persistence.room:runtime:1.1.1"
+    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

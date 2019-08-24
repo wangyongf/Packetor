@@ -1,6 +1,7 @@
-package com.yongf.flutter.packetcaptureflutter
+package com.yongf.flutter.packetcaptureflutter.app
 
 import android.app.Application
+import com.yongf.flutter.packetcaptureflutter.util.CrashHandler
 
 /**
  * @author scottwang1996@qq.com

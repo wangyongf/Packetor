@@ -1,4 +1,4 @@
-package com.yongf.flutter.packetcaptureflutter
+package com.yongf.flutter.packetcaptureflutter.app
 
 import android.Manifest
 import android.content.Context
@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.*
 import android.support.v4.app.ActivityCompat
-import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
 import com.minhui.vpn.ProxyConfig
@@ -17,9 +16,12 @@ import com.minhui.vpn.nat.NatSession
 import com.minhui.vpn.utils.SaveDataFileParser
 import com.minhui.vpn.utils.ThreadProxy
 import com.minhui.vpn.utils.VpnServiceHelper
+import com.yongf.flutter.packetcaptureflutter.db.RoomHelper
+import com.yongf.flutter.packetcaptureflutter.extension.toNatSessionEntity
 import com.yongf.flutter.packetcaptureflutter.extension.toProtoModel
 import com.yongf.flutter.packetcaptureflutter.model.NatSessionModel
 import com.yongf.flutter.packetcaptureflutter.model.NatSessionRequestModel
+import com.yongf.flutter.packetcaptureflutter.util.PcfHelper
 import io.flutter.app.FlutterActivity
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -31,7 +33,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-
 class MainActivity : FlutterActivity() {
     companion object {
         const val CHANNEL = "pcf.flutter.yongf.com/battery"
@@ -39,6 +40,8 @@ class MainActivity : FlutterActivity() {
         const val PCF_TRANSFER_SESSION = "flutter.yongf.com/pcf/session"
 
         const val ARG_SESSION_DIR = "session_dir"
+        const val ARG_SESSION = "session"
+        const val ARG_DIR = "dir"
     }
 
     private lateinit var channel: MethodChannel
@@ -48,6 +51,7 @@ class MainActivity : FlutterActivity() {
     private var timer: ScheduledExecutorService? = null
     private lateinit var handler: Handler
     private var allNetConnection: MutableList<NatSession> = mutableListOf()
+    private var session: NatSessionModel.NatSession? = null
 
     private var listener: ProxyConfig.VpnStatusListener = object : ProxyConfig.VpnStatusListener {
 
@@ -66,8 +70,10 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        SdkInitHelper.init(application)
+
         GeneratedPluginRegistrant.registerWith(this)
-        CrashHandler.getInstance().init(this)
 
         handler = Handler()
         ProxyConfig.Instance.registerVpnStatusListener(listener)
@@ -101,17 +107,40 @@ class MainActivity : FlutterActivity() {
         pcfSession.setMethodCallHandler { call, result ->
             when (call.method) {
                 "transferSessionByDir" -> transferSessionByDir(call)
+                "saveSession" -> saveSession(call, result)
                 else -> result.notImplemented()
             }
+        }
+        flutterView.setMessageHandler(PCF_TRANSFER_SESSION) { message, reply ->
+            //            message.order(ByteOrder.nativeOrder())
+            // TODO: 这种方式存在问题，暂时先这么做
+            session = NatSessionModel.NatSession.parseFrom(message.array())
+            reply.reply(null)
         }
 
         getData()
         checkPermission()
     }
 
+    private fun saveSession(call: MethodCall, result: MethodChannel.Result) {
+        var dir: String? = call.argument(ARG_DIR)
+        if (dir.isNullOrEmpty() || session == null) {
+            result.success(false)
+            return
+        }
+        performSaveSession(session!!, dir)
+        result.success(true)
+    }
+
+    private fun performSaveSession(session: NatSessionModel.NatSession, dir: String) {
+        var entity = session.toNatSessionEntity(this, dir)
+        // TODO: 直接 insert 的处理有问题！！！
+        RoomHelper.getNatSessionDatabase().natSessionDao.insert(entity)
+    }
+
     private fun transferSessionByDir(call: MethodCall) {
         var sessionDir: String? = call.argument(ARG_SESSION_DIR)
-        if (TextUtils.isEmpty(sessionDir)) {
+        if (sessionDir.isNullOrEmpty()) {
             return
         }
         sessionDir = Environment.getExternalStorageDirectory().absolutePath + sessionDir

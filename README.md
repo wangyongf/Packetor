@@ -113,3 +113,4 @@ samples, guidance on mobile development, and a full API reference.
 ## TODO List
 
 1. 使用 mmap 实时记录请求保存到文件中，展示的时候从文件中读取数据进行展示？
+2. 修复数据错乱的问题。。。

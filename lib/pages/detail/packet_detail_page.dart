@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:packet_capture_flutter/model/nat_session.pb.dart';
 import 'package:packet_capture_flutter/model/nat_session_request.pb.dart';
 import 'package:packet_capture_flutter/pages/detail/packet_detail_overview.dart';
@@ -40,8 +41,8 @@ class _PacketDetailPageState extends State<PacketDetailPage>
   Future<void> _refreshSession() async {
     var result;
     try {
-      NatSessionDelegate delegate = NatSessionDelegate();
-      ByteData message = await delegate.requestSessionByDir(widget.sessionPath);
+      ByteData message = await NatSessionDelegate().requestSessionByDir(
+        widget.sessionPath);
       List<int> bytes = message.buffer
           .asUint8List(message.offsetInBytes, message.lengthInBytes);
       result = NatSessionRequests.fromBuffer(bytes);
@@ -68,17 +69,13 @@ class _PacketDetailPageState extends State<PacketDetailPage>
           style: TextStyle(fontSize: 18),
         ),
         actions: <Widget>[
-          SizedBox(
-              width: 60,
-              child: InkWell(
-                  onTap: () {
-                    Share.share(
-                        'Check out my new app - Packet Capture Flutter');
-                  },
-                  child: Icon(Icons.share))),
-          SizedBox(
-              width: 60,
-              child: InkWell(onTap: () {}, child: Icon(Icons.favorite_border)))
+          IconButton(icon: Icon(Icons.share), onPressed: () {
+            Share.share(
+              'Check out my new app - Packet Capture Flutter');
+          }),
+          IconButton(icon: Icon(Icons.favorite_border), onPressed: () async {
+            await _saveSession();
+          }),
         ],
         bottom: _buildBottom(),
       ),
@@ -147,5 +144,15 @@ class _PacketDetailPageState extends State<PacketDetailPage>
     super.dispose();
 
     _tabController.dispose();
+  }
+
+  _saveSession() async {
+    try {
+      bool result = await NatSessionDelegate().saveSession(null, null);
+      Fluttertoast.showToast(msg: result ? "成功了" : "失败了");
+    } on PlatformException catch (e) {
+      /// TODO: 错误处理
+      Fluttertoast.showToast(msg: "异常了，${e.message}");
+    }
   }
 }

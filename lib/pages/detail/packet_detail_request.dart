@@ -192,7 +192,12 @@ class _PacketDetailRequestState extends State<PacketDetailRequest> {
         context: context,
         builder: (_) => AlertDialog(
                 title: Text(key),
-                content: Text(value),
+          content: ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              Text(value),
+            ],
+          ),
                 actions: <Widget>[
                   FlatButton(
                     child: Text("复制"),

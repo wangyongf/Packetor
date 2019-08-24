@@ -7,6 +7,7 @@ import com.google.protobuf.ByteString
 import com.minhui.vpn.nat.NatSession
 import com.minhui.vpn.processparse.AppInfo
 import com.yongf.flutter.packetcaptureflutter.common.Packages
+import com.yongf.flutter.packetcaptureflutter.db.NatSessionEntity
 import com.yongf.flutter.packetcaptureflutter.model.NatSessionModel
 import java.io.ByteArrayOutputStream
 
@@ -14,6 +15,38 @@ import java.io.ByteArrayOutputStream
  * @author wangyong.1996@bytedance.com
  * @since 2019/3/30.
  */
+fun NatSessionModel.NatSession?.toNatSessionEntity(activity: Activity, dir: String?): NatSessionEntity {
+    if (dir.isNullOrEmpty() || this == null) {
+        return NatSessionEntity()
+    }
+    return NatSessionEntity.NatSessionEntityBuilder
+            .aNatSessionEntity()
+            .withType(type)
+            .withIpAndPort(ipAndPort)
+            .withRemoteIP(remoteIP)
+            .withRemotePort(remotePort)
+            .withRemoteHost(remoteHost)
+            .withLocalIP(localIP)
+            .withLocalPort(localPort)
+            .withBytesSent(bytesSent)
+            .withPacketSent(packetSent)
+            .withReceivedByteNum(receivedByteNum)
+            .withReceivedPacketNum(receivedPacketNum)
+            .withLastRefreshTime(lastRefreshTime)
+            .withIsHttpsSession(isHttpsSession)
+            .withRequestUrl(requestUrl)
+            .withPath(path)
+            .withMethod(method)
+            .withConnectionStartTime(connectionStartTime)
+            .withVpnStartTime(vpnStartTime)
+            .withIsHttp(isHttp)
+            .withUniqueName(uniqueName)
+            .withAppName(appInfo.appName)
+            .withPackageName(appInfo.packageName)
+            .withSessionDataLocalAbsPath(dir)
+            .build()
+}
+
 fun NatSession.toProtoModel(activity: Activity): NatSessionModel.NatSession {
     val natSession = this
     return NatSessionModel.NatSession.newBuilder()
@@ -74,8 +107,7 @@ private fun getAppIcon(activity: Activity, appInfo: AppInfo?): com.google.protob
 }
 
 private fun randomPkgName(activity: Activity): String? {
-    val nextInt = (0..6).random()
-    return when (nextInt) {
+    return when ((0..6).random()) {
         0 -> activity.packageName
         1 -> Packages.WECHAT
         2 -> Packages.QQ

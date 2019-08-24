@@ -83,9 +83,13 @@ class _PacketDetailResponseState extends State<PacketDetailResponse> {
   }
 
   _getRawOption() {
-    return Text(
-      _buildRawText(),
-      style: TextStyle(color: Colors.black, fontSize: 15),
+    return ListView(
+      children: <Widget>[
+        Text(
+          _buildRawText(),
+          style: TextStyle(color: Colors.black, fontSize: 15),
+        ),
+      ],
     );
   }
 
@@ -281,7 +285,12 @@ class _PacketDetailResponseState extends State<PacketDetailResponse> {
       builder: (_) =>
         AlertDialog(
           title: Text(key),
-          content: Text(value),
+          content: ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              Text(value),
+            ],
+          ),
           actions: <Widget>[
             FlatButton(
               child: Text("复制"),

@@ -229,8 +229,6 @@ class _PacketListPageState extends State<PacketListPage> {
       Fluttertoast.showToast(msg: '暂时只支持查看 TCP 类型请求');
       return;
     }
-
-    /// TODO: fix 请求数据目录不正确的问题
     String dir = Constants.DATA_DIR +
         TimeFormatUtil.format(widget.sessions.session[position].vpnStartTime) +
         "/" +

@@ -1,4 +1,4 @@
-package com.yongf.flutter.packetcaptureflutter;
+package com.yongf.flutter.packetcaptureflutter.util;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -66,7 +66,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     }
 
     public void init(Context context) {
-        mContext = context;
+        mContext = context.getApplicationContext();
         mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler();
         //设置该CrashHandler为系统默认的
         Thread.setDefaultUncaughtExceptionHandler(this);
